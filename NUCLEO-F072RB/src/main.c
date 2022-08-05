@@ -29,7 +29,6 @@
 #include "SPI_Driver.h"
 #include "BMP280.h"
 #include "App_Barometer.h"
-#include "solenoid.h"
 
 void SystemClock_Config(void);
 
@@ -44,7 +43,6 @@ int main(void)
     Pipe_Init();
     SPI_Driver_Init();
     BMP280_Init();
-    Solenoid_Init();
     App_barometer_Init();
 
     while (1)
@@ -54,7 +52,6 @@ int main(void)
         Pipe_Loop();
         SPI_Driver_Loop();
         BMP280_Loop();
-        Solenoid_Loop();
         App_barometer_Loop();
     }
 }
