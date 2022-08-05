@@ -6,7 +6,7 @@ static void Solenoid_MsgHandler(service_t *service, msg_t *msg);
 
 void Solenoid_Init(void)
 {
-    digitalWrite(8, OUTPUT)
+    pinMode(8, OUTPUT);
     revision_t revision = {{{1, 0, 0}}};
     Luos_CreateService(Solenoid_MsgHandler, STATE_TYPE, "solenoid", revision);
 
@@ -14,7 +14,6 @@ void Solenoid_Init(void)
 
 void Solenoid_Loop(void) 
 {
-    ;
 }
 
 

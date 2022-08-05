@@ -6,9 +6,6 @@ extern "C"
 #endif
 
 #include "luos_engine.h"
-#include "led.h"
-#include "button.h"
-#include "switcher.h"
 #include "solenoid.h"
 
 #ifdef __cplusplus
@@ -23,9 +20,6 @@ extern "C"
 void setup()
 {
     Luos_Init();
-    Led_Init();
-    //Button_Init();
-    //Switcher_Init();
     Solenoid_Init();
     
 }
@@ -37,8 +31,5 @@ void setup()
 void loop()
 {
     Luos_Loop();
-    Led_Loop();
-    //Button_Loop();
-    //Switcher_Loop();
     Solenoid_Loop();
 }
