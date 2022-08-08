@@ -3,7 +3,7 @@
 
 static void Solenoid_MsgHandler(service_t *service, msg_t *msg);
 
-
+/* Creation of the service and initialization of the PIN dedicated to the solenoid */
 void Solenoid_Init(void)
 {
     pinMode(8, OUTPUT);
@@ -14,9 +14,10 @@ void Solenoid_Init(void)
 
 void Solenoid_Loop(void) 
 {
+    ;
 }
 
-
+/* Activate or Deactivate the solenoid depending on the Message received */
 static void Solenoid_MsgHandler(service_t *service, msg_t *msg)
 {
     if (msg->header.cmd == IO_STATE)
