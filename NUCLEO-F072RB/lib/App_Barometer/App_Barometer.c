@@ -19,7 +19,7 @@ static void App_Barometer_MsgHandler(service_t *service, msg_t *msg);
 
 
 
-
+/* Sends an auto update Message to the service barometer at the end of Luos Detection, and store pressure when received */
 static void App_Barometer_MsgHandler(service_t *service, msg_t *msg)
 {
     
@@ -58,6 +58,7 @@ static void App_Barometer_MsgHandler(service_t *service, msg_t *msg)
     
 }
 
+/* Creation of Luso Service, and Detection of other services */
 void App_barometer_Init()
 {
     revision_t revision = {{{1, 0, 0}}};
@@ -66,13 +67,9 @@ void App_barometer_Init()
     LastAsk = Luos_GetSystick();
 }
 
+/* Checks if apogee is reached and sends a Message to teh solenoid service if this is the case */
 void App_barometer_Loop()
 {
-    /*if(LastAsk - Luos_GetSystick() > 1000)
-    {
-        App_Barometer_Get_Pressure();
-        LastAsk = Luos_GetSystick();
-    }*/
     _Altitude = App_barometer_DetermineAlt(PressureOD_PressureTo_Pa(_Pressure));
     if(_Altitude > 32000)
     {
@@ -80,6 +77,7 @@ void App_barometer_Loop()
     }
 }
 
+/* Calculate an altitude from a pressure by comparison with standardized atmosphere */
 float App_barometer_DetermineAlt(pressure_t Pressure)
 {
     if(Pressure>22632)
@@ -101,6 +99,7 @@ float App_barometer_DetermineAlt(pressure_t Pressure)
     return Altitude;
 }
 
+/* Sends a Message to the service Solenoid with the information "True" */
 void App_barometer_Liberation()
 {
     msg_t pub_msg;
@@ -112,16 +111,6 @@ void App_barometer_Liberation()
     Luos_SendMsg(barometer_app, &pub_msg);   
 }
 
-/*void App_Barometer_Get_Pressure()
-{
-    msg_t pub_msg;
-    pub_msg.header.cmd = GET_CMD;
-    pub_msg.header.size = sizeof(pressure_t);
-    pub_msg.header.target_mode = ID;
-    pub_msg.header.target = ID_BMP280;
-    pub_msg.data[0] = _Pressure;
-    Luos_SendMsg(barometer_app, &pub_msg);
-}*/
 
 
 

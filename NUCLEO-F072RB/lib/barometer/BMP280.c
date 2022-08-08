@@ -1,6 +1,6 @@
 #include "BMP280.h"
 
-//Registers
+/* Registers */
 uint8_t Sub1_Temperature1_Reg = 0x88;
 uint8_t Sub2_Temperature1_Reg = 0x89;
 uint8_t Sub1_Temperature2_Reg = 0x8A;
@@ -40,13 +40,13 @@ uint8_t W_Config_Register = 0x75;
 uint8_t R_Config_Register = 0xF5;
 uint8_t Status_Register = 0xF3;
 
-//Initialization
+/* Initialization */
 uint8_t Reset_Command = 0xB6;
 uint8_t Config_meas = 0x57;
 uint8_t Config = 0x90;
 uint8_t Status = 0;
 
-//Data needed for calculation
+/* Data needed for calculation */
 uint16_t Temperature1 = 0;
 int16_t Temperature2 = 0;
 int16_t Temperature3 = 0;
@@ -62,12 +62,12 @@ int16_t Pressure8 = 0;
 int16_t Pressure9 = 0;
 int32_t Compensation_Pressure = 0;
 
-//Temporary storage 
+/* Temporary storage */
 uint8_t Sub_Data1 ;
 uint8_t Sub_Data2 ;
 uint8_t Sub_Data3 ;
 
-//Calculation
+/* Calculation */
 float Var1_T = 0;
 float Var2_T = 0;
 float t_fine = 0;
@@ -82,13 +82,13 @@ float Var24_P = 0;
 float Pressure_temp1 = 0;
 float Pressure_temp2 = 0;
 
-//Final Data
+/* Final Data */
 float Temperature = 0;
 float Pressure = 0;
 
 static void BMP280_MsgHandler(service_t *service, msg_t *msg);
 
-
+/* Receive and reply to an external Message */
 static void BMP280_MsgHandler(service_t *service, msg_t *msg)
 {
     if (msg->header.cmd == GET_CMD)
@@ -117,29 +117,31 @@ static void BMP280_MsgHandler(service_t *service, msg_t *msg)
 
 void BMP280_Init()
 {
+    /* Resets the device */
     HAL_GPIO_WritePin(SPIx_CS_GPIO_PORT,SPIx_CS_PIN, 0);
     Send_SPI_Message( &Reset_Register, 1);
     Send_SPI_Message(&Reset_Command, 1);
     HAL_GPIO_WritePin(SPIx_CS_GPIO_PORT,SPIx_CS_PIN, 1);
  
-
+    /* Write in the config register: sets time between 2 measurements, filter applied, enable or not 3 wire SPI */
     HAL_GPIO_WritePin(SPIx_CS_GPIO_PORT,SPIx_CS_PIN, 0);
     Send_SPI_Message( &W_Config_Register, 1);
     Send_SPI_Message(&Config, 1);
     HAL_GPIO_WritePin(SPIx_CS_GPIO_PORT,SPIx_CS_PIN, 1);
 
-
+    /* Write in the config_meas register: sets temperature data oversampling, pressure data oversampling, power mode */
     HAL_GPIO_WritePin(SPIx_CS_GPIO_PORT,SPIx_CS_PIN, 0);
     Send_SPI_Message( &W_Config_meas_Register, 1);
     Send_SPI_Message(&Config_meas, 1);
     HAL_GPIO_WritePin(SPIx_CS_GPIO_PORT,SPIx_CS_PIN, 1);
 
-
+    /* permits to see if the device is measuring or not */
     HAL_GPIO_WritePin(SPIx_CS_GPIO_PORT,SPIx_CS_PIN, 0);
     Send_SPI_Message( &Status_Register, 1);
     Receive_SPI_Message(&Status, 1);
     HAL_GPIO_WritePin(SPIx_CS_GPIO_PORT,SPIx_CS_PIN, 1);
 
+    /* Creation of Luos Service */
     revision_t revision = {{{1, 0, 0}}};
     Luos_CreateService(BMP280_MsgHandler, PRESSURE_TYPE, "BMP280", revision);
 }
@@ -148,12 +150,13 @@ void BMP280_Init()
 
 void BMP280_Loop()
 {
-    
+    /* Permits to retrieve data from a register */
     HAL_GPIO_WritePin(SPIx_CS_GPIO_PORT,SPIx_CS_PIN, 0);
     Send_SPI_Message( &Sub1_Temperature1_Reg, 1);
     Receive_SPI_Message(&Sub_Data1, 1);
     Receive_SPI_Message(&Sub_Data2, 1);
     HAL_GPIO_WritePin(SPIx_CS_GPIO_PORT,SPIx_CS_PIN, 1);
+    /* Data is divided in two bytes so we need to assemble it */
     Temperature1 = Sub_Data2 << 8;
     Temperature1 = Temperature1 | Sub_Data1;
 
@@ -183,11 +186,13 @@ void BMP280_Loop()
     Compensation_Temperature = Compensation_Temperature | Sub_Data2 << 4;
     Compensation_Temperature = Compensation_Temperature | Sub_Data3 << 12;
 
+    /* Determination of temperature with several calculations according to documentation */
     Var1_T = (((float)Compensation_Temperature/(float)16384)-((float)Temperature1/(float)1024))*(float)Temperature2;
     Var2_T = (((float)Compensation_Temperature/(float)131072)-(float)Temperature1/(float)8192)*(((float)Compensation_Temperature/(float)131072)-(float)Temperature1/(float)8192)*(float)Temperature3;
     t_fine = Var1_T + Var2_T;
     Temperature = (Var1_T + Var2_T) / 5120;
 
+    /* Same process for Pressure */
     HAL_GPIO_WritePin(SPIx_CS_GPIO_PORT,SPIx_CS_PIN, 0);
     Send_SPI_Message( &Sub1_Pressure1_Reg, 1);
     Receive_SPI_Message(&Sub_Data1, 1);

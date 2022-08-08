@@ -39,6 +39,16 @@ SPI_HandleTypeDef SpiHandle;
 /* Private function prototypes -----------------------------------------------*/
 static uint16_t Buffercmp(uint8_t *pBuffer1, uint8_t *pBuffer2, uint16_t BufferLength);
 
+
+ static void Error_Handler(void)
+{
+   while(1)
+  {
+
+  }
+}
+
+
 /**
   * @brief  Main program.
   * @param  None
@@ -115,47 +125,31 @@ GPIO_InitTypeDef  GPIO_InitStruct;
   if(HAL_SPI_Init(&SpiHandle) != HAL_OK)
   {
     /* Initialization Error */
-    //Error_Handler();
+    Error_Handler();
   }
 
 }
 
 void SPI_Driver_Loop()
 {
-
-
-  /*if(HAL_SPI_Init(&SpiHandle) != HAL_OK)
-  {
-    Error_Handler();
-  }*/
-
-
-
+  ;
 }
 
 
 
-/*void Error_Handler(void)
-{
-   while(1)
-   {
-
-    }
-}
-*/
-
+/*Send a Message*/
 void Send_SPI_Message(uint8_t *Message,uint8_t Message_Size)
 {
   HAL_SPI_Transmit(&SpiHandle, (uint8_t*)Message, Message_Size, 5000);
 }
 
-
+/*Receive a Message*/
 void Receive_SPI_Message(uint8_t *Reception_Buffer,uint8_t Data_Size)
 {
   HAL_SPI_Receive(&SpiHandle, (uint16_t*)Reception_Buffer, Data_Size, 5000);
 }
 
-
+/*Compare two Buffers*/
 static uint16_t Buffercmp(uint8_t* pBuffer1, uint8_t* pBuffer2, uint16_t BufferLength)
 {
   while (BufferLength--)

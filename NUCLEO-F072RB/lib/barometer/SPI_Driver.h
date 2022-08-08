@@ -35,7 +35,7 @@
 #define SPIx_CS_GPIO_PORT                GPIOA
 
 
-
+/* Functions Definition */
 void SPI_Driver_Init();
 void SPI_Driver_Loop();
 void SystemClock_Config(void);
